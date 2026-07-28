@@ -63,7 +63,7 @@ exports.handler = async function (event) {
         "Authorization": `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: "gemma-2-9b-it",
+        model: "llama-3.3-70b-versatile",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userMessage }
