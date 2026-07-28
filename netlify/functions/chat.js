@@ -28,27 +28,29 @@ exports.handler = async function (event) {
 
   if (mode === "suggest") {
     systemPrompt = [
-      "You are a nutrition assistant in a food tracking app called Fuel.",
-      "Suggest 2-3 specific foods the user could eat next, using ONLY items from the provided food list (use exact food names).",
-      "Prioritize protein if protein intake so far is low.",
-      "Stay within the remaining calorie budget.",
-      "Keep it under 100 words. Be practical and direct."
+      "You are a creative nutrition assistant in the Fuel app.",
+      "The user wants meal suggestions based on their remaining calorie budget and current macros.",
+      "You have access to a database of 100+ foods they can log.",
+      "Suggest 3-4 specific, practical meal ideas or combinations.",
+      "Be creative and varied — suggest different types of foods (proteins, carbs, fruits, snacks, etc.).",
+      "Consider their remaining calories and macro balance.",
+      "If protein is low, suggest high-protein options.",
+      "If they have lots of calories left, suggest more substantial meals.",
+      "Format as a simple list, under 120 words.",
+      "Be friendly and encouraging."
     ].join(" ");
 
     userMessage = [
-      `Remaining calories today: ${context?.remainingCalories ?? "unknown"} kcal.`,
-      `Today so far — Protein: ${context?.proteinSoFar ?? 0}g, Carbs: ${context?.carbsSoFar ?? 0}g, Fat: ${context?.fatSoFar ?? 0}g.`,
-      `Available foods: ${context?.foodNames ?? ""}.`,
-      "What should I eat next? Suggest from the list."
+      `Remaining calorie budget: ${context?.remainingCalories ?? 2000} kcal.`,
+      `Macros so far today:`,
+      `  • Protein: ${context?.proteinSoFar ?? 0}g`,
+      `  • Carbs: ${context?.carbsSoFar ?? 0}g`,
+      `  • Fat: ${context?.fatSoFar ?? 0}g`,
+      ``,
+      `Available foods (pick from these): ${context?.foodNames ?? ""}.`,
+      ``,
+      `Give me 3-4 specific meal suggestions based on my remaining calories and macro needs. Be creative!`
     ].join("\n");
-  } else {
-    systemPrompt = [
-      "You are a friendly nutrition assistant in the Fuel app.",
-      "Give practical, evidence-based nutrition advice.",
-      "Keep answers under 120 words unless asked for more.",
-      "You are not a doctor."
-    ].join(" ");
-    userMessage = message || "";
   }
 
   if (!userMessage.trim()) {
