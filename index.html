@@ -9,13 +9,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-/* ===========================
-   FUEL - Nutrition Tracker
-   A dashboard/instrument-panel aesthetic:
-   deep petrol-ink background, an amber "fuel gauge"
-   as the hero, and macros color-coded like readouts.
-=========================== */
-
 *{margin:0;padding:0;box-sizing:border-box;}
 
 :root{
@@ -43,8 +36,6 @@ body{
     color:var(--paper);
     min-height:100vh;
 }
-
-/* ---------- Topbar ---------- */
 
 .topbar{
     border-bottom:1px solid var(--line);
@@ -94,8 +85,6 @@ body{
     margin-top:2px;
 }
 
-/* ---------- Layout ---------- */
-
 .container{max-width:720px;margin:0 auto;padding:20px;}
 
 .panel{
@@ -114,8 +103,6 @@ body{
     margin-bottom:14px;
     color:var(--paper);
 }
-
-/* ---------- Gauge (signature element) ---------- */
 
 .gauge-section{text-align:center;}
 
@@ -198,8 +185,6 @@ body{
 .goal-row input{margin:0;}
 .goal-row button{margin:0;width:auto;padding:0 20px;}
 
-/* ---------- Macro tubes ---------- */
-
 .macro-row{
     display:grid;
     grid-template-columns:repeat(3, 1fr);
@@ -234,8 +219,6 @@ body{
 
 .tube-value small{font-size:14px;font-weight:400;margin-left:2px;color:var(--muted);}
 
-/* ---------- Split panels (water / weight) ---------- */
-
 .split{display:grid;grid-template-columns:1fr 1fr;gap:22px;}
 
 .input-row{display:flex;gap:8px;}
@@ -250,9 +233,7 @@ body{
     color:var(--volt);
 }
 
-/* ---------- Inputs ---------- */
-
-input, select{
+input, select, textarea{
     width:100%;
     padding:13px 14px;
     margin:8px 0;
@@ -264,9 +245,9 @@ input, select{
     font-size:15px;
 }
 
-input::placeholder{color:var(--muted);}
+input::placeholder, textarea::placeholder{color:var(--muted);}
 
-input:focus, select:focus{
+input:focus, select:focus, textarea:focus{
     outline:none;
     border-color:var(--fuel);
 }
@@ -283,8 +264,6 @@ input:focus-visible, select:focus-visible, button:focus-visible, .chip:focus-vis
     font-size:12px;
     color:var(--muted);
 }
-
-/* ---------- Buttons ---------- */
 
 button{
     width:100%;
@@ -303,14 +282,13 @@ button{
 
 button:hover{opacity:.9;}
 button:active{transform:scale(.98);}
+button:disabled{opacity:.5;cursor:not-allowed;}
 
 .btn-ghost{
     background:transparent;
     color:var(--fuel);
     border:1px solid var(--fuel);
 }
-
-/* ---------- Meal chips ---------- */
 
 .chip-row{
     display:flex;
@@ -343,8 +321,6 @@ button:active{transform:scale(.98);}
     color:#1A0F03;
     font-weight:600;
 }
-
-/* ---------- Table ---------- */
 
 .table-wrap{overflow-x:auto;}
 
@@ -407,24 +383,6 @@ tr:hover td{background:var(--panel-2);}
 
 canvas{margin-top:6px;max-height:260px;}
 
-/* ---------- AI panels ---------- */
-
-textarea{
-    width:100%;
-    padding:13px 14px;
-    margin:8px 0;
-    border-radius:10px;
-    border:1px solid var(--line);
-    background:var(--panel-2);
-    color:var(--paper);
-    font-family:var(--font-body);
-    font-size:15px;
-    resize:vertical;
-    min-height:70px;
-}
-
-textarea:focus{outline:none;border-color:var(--fuel);}
-
 .ai-tag{
     display:inline-block;
     font-family:var(--font-mono);
@@ -455,8 +413,6 @@ textarea:focus{outline:none;border-color:var(--fuel);}
 
 .ai-response.loading{color:var(--muted);font-family:var(--font-mono);}
 
-/* ---------- Footer ---------- */
-
 .statusbar{
     max-width:720px;
     margin:0 auto;
@@ -467,8 +423,6 @@ textarea:focus{outline:none;border-color:var(--fuel);}
     letter-spacing:1px;
     color:var(--muted);
 }
-
-/* ---------- Responsive ---------- */
 
 @media(max-width:640px){
     .split{grid-template-columns:1fr;}
@@ -481,8 +435,6 @@ textarea:focus{outline:none;border-color:var(--fuel);}
     .brand-name{font-size:22px;}
     .panel{padding:16px;}
 }
-
-/* ---------- Reduced motion ---------- */
 
 @media (prefers-reduced-motion: reduce){
     *{transition:none !important;}
@@ -631,7 +583,6 @@ textarea:focus{outline:none;border-color:var(--fuel);}
 </footer>
 
 <script>
-// ---------- Food Database ----------
 const foods = [
   { id: 1, name: "Egg", unit: "piece", serving: 1, calories: 70, protein: 6, carbs: 0.6, fat: 5, fibre: 0, sugar: 0 },
   { id: 2, name: "Chicken Breast", unit: "100g", serving: 100, calories: 165, protein: 31, carbs: 0, fat: 3.6, fibre: 0, sugar: 0 },
@@ -739,8 +690,6 @@ const foods = [
   { id: 104, name: "Khichda", unit: "100g", serving: 100, calories: 170, protein: 9, carbs: 18, fat: 7, fibre: 3, sugar: 1 }
 ];
 
-// Maps meals to the same accent palette used across the dashboard,
-// so the log visually agrees with the gauge/tubes above it.
 const MEAL_COLORS = {
   Breakfast: "var(--teal)",
   Lunch: "var(--fuel)",
@@ -748,7 +697,6 @@ const MEAL_COLORS = {
   Snacks: "var(--volt)"
 };
 
-// ---------- Storage ----------
 const STORAGE_KEY = "fuel_data_v1";
 
 function todayKey() {
@@ -766,13 +714,12 @@ function loadData() {
 }
 
 function saveData() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) { /* storage unavailable */ }
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) { }
 }
 
 let data = loadData();
 let selectedMeal = "Breakfast";
 
-// ---------- Elements ----------
 const searchInput = document.getElementById("search");
 const foodSelect = document.getElementById("foodSelect");
 const quantityInput = document.getElementById("quantity");
@@ -795,7 +742,6 @@ searchInput.addEventListener("input", () => populateFoodSelect(searchInput.value
 foodSelect.addEventListener("change", updateUnitHint);
 populateFoodSelect();
 
-// ---------- Meal chips ----------
 document.querySelectorAll(".chip").forEach(chip => {
   chip.addEventListener("click", () => {
     document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
@@ -804,7 +750,6 @@ document.querySelectorAll(".chip").forEach(chip => {
   });
 });
 
-// ---------- Add / delete food ----------
 function addFood() {
   const id = parseInt(foodSelect.value, 10);
   const food = foods.find(f => f.id === id);
@@ -839,7 +784,6 @@ function deleteFood(entryId) {
   render();
 }
 
-// ---------- Goal ----------
 function saveGoal() {
   const val = parseFloat(document.getElementById("goalInput").value);
   if (!val || val <= 0) return;
@@ -849,7 +793,6 @@ function saveGoal() {
   render();
 }
 
-// ---------- Water ----------
 function saveWater() {
   const val = parseFloat(document.getElementById("waterInput").value);
   if (isNaN(val) || val < 0) return;
@@ -864,7 +807,6 @@ function renderWater() {
   document.getElementById("waterDisplay").textContent = `${glasses} Glasses`;
 }
 
-// ---------- Weight ----------
 function saveWeight() {
   const val = parseFloat(document.getElementById("weightInput").value);
   if (isNaN(val) || val <= 0) return;
@@ -879,7 +821,6 @@ function renderWeight() {
   document.getElementById("weightDisplay").textContent = w ? `${w} kg` : "--";
 }
 
-// ---------- Gauge ----------
 const GAUGE_R = 90;
 const GAUGE_CIRC = 2 * Math.PI * GAUGE_R;
 const gaugeFillEl = document.getElementById("gaugeFill");
@@ -920,7 +861,6 @@ function renderGauge(totalCalories) {
     remaining >= 0 ? `of ${goal} — ${Math.round(remaining)} left` : `${Math.round(-remaining)} over ${goal}`;
 }
 
-// ---------- Table + dashboard ----------
 function render() {
   const meals = data.days[todayKey()].meals;
 
@@ -963,7 +903,6 @@ function render() {
   renderProteinChart();
 }
 
-// ---------- Weekly charts ----------
 let chartInstance = null;
 let proteinChartInstance = null;
 
@@ -995,7 +934,7 @@ function renderChart() {
     return;
   }
 
-  if (typeof Chart === "undefined") return; // CDN unavailable (e.g. no internet)
+  if (typeof Chart === "undefined") return;
 
   chartInstance = new Chart(ctx, {
     type: "bar",
@@ -1031,7 +970,7 @@ function renderProteinChart() {
     return;
   }
 
-  if (typeof Chart === "undefined") return; // CDN unavailable (e.g. no internet)
+  if (typeof Chart === "undefined") return;
 
   proteinChartInstance = new Chart(ctx, {
     type: "bar",
@@ -1044,14 +983,6 @@ function renderProteinChart() {
   });
 }
 
-// ---------- Header / footer clock ----------
-function updateClock() {
-  const now = new Date();
-  document.getElementById("todayLabel").textContent = now.toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" });
-  document.getElementById("statusTime").textContent = now.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
-}
-
-// ---------- AI features ----------
 const AI_ENDPOINT = "/.netlify/functions/chat";
 
 function setResponseBox(el, text, isLoading) {
@@ -1085,7 +1016,7 @@ async function askAI() {
     const reply = await callAI({ mode: "chat", message: question });
     setResponseBox(box, reply, false);
   } catch (err) {
-    setResponseBox(box, `AI is unavailable: ${err.message}\n\nThis feature needs the app deployed on Netlify with ANTHROPIC_API_KEY set as an environment variable.`, false);
+    setResponseBox(box, `AI is unavailable: ${err.message}\n\nThis feature needs the app deployed on Netlify with GROQ_API_KEY set as an environment variable.`, false);
   } finally {
     btn.disabled = false;
   }
@@ -1107,6 +1038,10 @@ async function suggestMeals() {
   const goal = data.goal || 2000;
   const remainingCalories = Math.max(0, Math.round(goal - totals.calories));
 
+  // Shuffle the food list each time for variety
+  const shuffledFoods = [...foods].sort(() => Math.random() - 0.5);
+  const foodNames = shuffledFoods.map(f => f.name).join(", ");
+
   btn.disabled = true;
   setResponseBox(box, "Thinking...", true);
 
@@ -1118,18 +1053,23 @@ async function suggestMeals() {
         proteinSoFar: totals.protein.toFixed(1),
         carbsSoFar: totals.carbs.toFixed(1),
         fatSoFar: totals.fat.toFixed(1),
-        foodNames: foods.map(f => f.name).join(", ")
+        foodNames
       }
     });
     setResponseBox(box, reply, false);
   } catch (err) {
-    setResponseBox(box, `AI is unavailable: ${err.message}\n\nThis feature needs the app deployed on Netlify with ANTHROPIC_API_KEY set as an environment variable.`, false);
+    setResponseBox(box, `AI is unavailable: ${err.message}\n\nThis feature needs the app deployed on Netlify with GROQ_API_KEY set as an environment variable.`, false);
   } finally {
     btn.disabled = false;
   }
 }
 
-// ---------- Init ----------
+function updateClock() {
+  const now = new Date();
+  document.getElementById("todayLabel").textContent = now.toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" });
+  document.getElementById("statusTime").textContent = now.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
+}
+
 initGaugeTicks();
 updateClock();
 setInterval(updateClock, 60000);
