@@ -23,8 +23,19 @@ exports.handler = async function (event) {
 
   const { mode, message, context } = body;
 
-  let systemPrompt = "";
+   let systemPrompt = "";
   let userMessage = "";
+
+  if (mode === "chat") {
+    systemPrompt = [
+      "You are Fuel AI Coach, a friendly and knowledgeable nutrition assistant.",
+      "Answer the user's nutrition, diet, and fitness questions clearly and practically.",
+      "Give specific, actionable advice when possible.",
+      "Keep answers under 150 words unless more detail is clearly needed.",
+      "Be encouraging and non-judgmental."
+    ].join(" ");
+    userMessage = message || "";
+  }
 
   if (mode === "suggest") {
     systemPrompt = [
@@ -54,6 +65,7 @@ exports.handler = async function (event) {
   }
 
   if (!userMessage.trim()) {
+
     return { statusCode: 400, body: JSON.stringify({ error: "Empty message." }) };
   }
 
