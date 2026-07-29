@@ -530,7 +530,19 @@ async function loadUserSubscription() {
     const doc = await db.collection("subscriptions").doc(currentUser.uid).get();
     if (doc.exists) {
       const sub = doc.data();
-      isPremium = sub.status === "active";
+      const now = new Date();
+      const trialEnd = sub.trialEndsAt ? sub.trialEndsAt.toDate() : null;
+
+      if (sub.status === "active") {
+        isPremium = true;
+      } else if (sub.status === "trial" && trialEnd && now < trialEnd) {
+        isPremium = true;
+      } else {
+        isPremium = false;
+        if (sub.status === "trial" && trialEnd && now >= trialEnd) {
+          await db.collection("subscriptions").doc(currentUser.uid).update({ status: "expired" });
+        }
+      }
       updatePremiumUI();
       if (!isPremium) showPaywall();
     } else {
@@ -549,7 +561,7 @@ async function startSubscription() {
     hidePaywall();
     updatePremiumUI();
     await db.collection("subscriptions").doc(currentUser.uid).set({
-      status: "active",
+      status: "trial",
       trialEndsAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
       createdAt: new Date()
     });
