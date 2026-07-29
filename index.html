@@ -93,6 +93,59 @@ button:disabled{opacity:.5;cursor:not-allowed;}
 .chip-row{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;}
 .chip{padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:var(--panel-2);color:var(--muted);cursor:pointer;font-size:12px;}
 .chip.active{background:var(--fuel);color:#1A0F03;font-weight:600;border-color:var(--fuel);}
+.btn-ghost{background:transparent;color:var(--fuel);border:1px solid var(--fuel);}
+
+/* ---------- Gauge ---------- */
+.gauge-section{text-align:center;}
+.gauge-wrap{position:relative;width:220px;height:220px;margin:0 auto;}
+.gauge-svg{width:100%;height:100%;}
+.gauge-track{fill:none;stroke:var(--panel-2);stroke-width:10;}
+.gauge-fill{fill:none;stroke:var(--fuel);stroke-width:10;stroke-linecap:round;transform:rotate(-90deg);transform-origin:110px 110px;transition:stroke-dashoffset .6s ease, stroke .3s ease;}
+.tick{stroke:var(--line);stroke-width:2;}
+.tick.major{stroke:var(--muted);stroke-width:2.5;}
+.gauge-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.gauge-value{font-family:var(--font-mono);font-weight:600;font-size:42px;line-height:1;color:var(--paper);}
+.gauge-unit{font-family:var(--font-mono);font-size:11px;letter-spacing:2px;color:var(--muted);margin-top:6px;}
+.gauge-goal{font-family:var(--font-mono);font-size:12px;color:var(--fuel);margin-top:4px;}
+.goal-control{margin-top:20px;padding-top:18px;border-top:1px dashed var(--line);}
+.field-label{display:block;font-family:var(--font-mono);font-size:11px;letter-spacing:1px;color:var(--muted);margin-bottom:8px;}
+.goal-row{display:flex;gap:10px;max-width:280px;margin:0 auto;}
+.goal-row input{margin:0;}
+.goal-row button{margin:0;width:auto;padding:0 20px;}
+
+/* ---------- Macro tubes ---------- */
+.macro-row{display:grid;grid-template-columns:repeat(3, 1fr);gap:14px;margin-bottom:18px;}
+.tube{background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--accent);border-radius:14px;padding:16px 12px;text-align:center;}
+.tube-label{display:block;font-family:var(--font-mono);font-size:11px;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px;}
+.tube-value{font-family:var(--font-mono);font-weight:600;font-size:26px;color:var(--accent);}
+.tube-value small{font-size:14px;font-weight:400;margin-left:2px;color:var(--muted);}
+
+/* ---------- Split panels (water / weight) ---------- */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:22px;}
+.input-row{display:flex;gap:8px;}
+.input-row input{margin:0;}
+.input-row button{margin:0;width:auto;padding:0 18px;}
+.readout{margin-top:12px;font-family:var(--font-mono);font-size:18px;font-weight:600;color:var(--volt);}
+
+/* ---------- Log table ---------- */
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;margin-top:6px;}
+th{font-family:var(--font-mono);font-size:11px;letter-spacing:1px;color:var(--muted);text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);}
+td{padding:12px;border-bottom:1px solid var(--line);font-size:14px;}
+td:nth-child(2), td:nth-child(3), td:nth-child(4){font-family:var(--font-mono);color:var(--paper);}
+tr:hover td{background:var(--panel-2);}
+.meal-tag{font-family:var(--font-mono);font-size:11px;padding:3px 8px;border-radius:999px;border-left:3px solid var(--accent);background:var(--panel-2);color:var(--muted);}
+.delete-btn{background:transparent;border:1px solid var(--ember);color:var(--ember);padding:6px 10px;border-radius:8px;cursor:pointer;width:auto;margin-top:0;font-size:13px;}
+.delete-btn:hover{background:var(--ember);color:var(--ink);}
+.empty-row td{text-align:center;color:var(--muted);font-family:var(--font-mono);font-size:13px;padding:24px 12px;}
+canvas{margin-top:6px;max-height:260px;}
+
+@media(max-width:640px){
+    .split{grid-template-columns:1fr;}
+    .macro-row{grid-template-columns:1fr;}
+    .gauge-wrap{width:190px;height:190px;}
+    .gauge-value{font-size:36px;}
+}
 </style>
 </head>
 <body>
@@ -129,7 +182,7 @@ button:disabled{opacity:.5;cursor:not-allowed;}
 <div class="paywall-screen" id="paywallScreen">
     <div class="paywall-container">
         <div class="paywall-title">Unlock Premium</div>
-        <div class="paywall-subtitle">AI coach + 200+ foods</div>
+        <div class="paywall-subtitle">AI coach + 260+ foods</div>
         <div class="trial-badge">✨ 3 Days Free Trial</div>
         <div class="price-display">
             <div class="price-amount">₹99</div>
@@ -139,7 +192,7 @@ button:disabled{opacity:.5;cursor:not-allowed;}
             <div class="feature-item"><span class="feature-check">✓</span> <span>🤖 Ask AI Nutrition Coach</span></div>
             <div class="feature-item"><span class="feature-check">✓</span> <span>✨ Smart Meal Suggestions</span></div>
             <div class="feature-item"><span class="feature-check">✓</span> <span>Unlimited food logging</span></div>
-            <div class="feature-item"><span class="feature-check">✓</span> <span>200+ foods database</span></div>
+            <div class="feature-item"><span class="feature-check">✓</span> <span>260+ foods database</span></div>
             <div class="feature-item"><span class="feature-check">✓</span> <span>Weekly analytics</span></div>
         </div>
         <button class="paywall-btn" onclick="startSubscription()">Start 3-Day Free Trial</button>
@@ -165,6 +218,65 @@ button:disabled{opacity:.5;cursor:not-allowed;}
 
 <main class="container">
 
+    <!-- CALORIE GAUGE -->
+    <section class="panel gauge-section">
+        <div class="gauge-wrap">
+            <svg class="gauge-svg" viewBox="0 0 220 220">
+                <g id="gaugeTicks"></g>
+                <circle class="gauge-track" cx="110" cy="110" r="90"></circle>
+                <circle class="gauge-fill" id="gaugeFill" cx="110" cy="110" r="90"></circle>
+            </svg>
+            <div class="gauge-center">
+                <span class="gauge-value" id="gaugeValue">0</span>
+                <span class="gauge-unit">KCAL TODAY</span>
+                <span class="gauge-goal" id="gaugeGoalText">of 2000</span>
+            </div>
+        </div>
+        <div class="goal-control">
+            <label for="goalInput" class="field-label">DAILY ENERGY GOAL (KCAL)</label>
+            <div class="goal-row">
+                <input type="number" id="goalInput" placeholder="2000">
+                <button class="btn-ghost" onclick="saveGoal()">Set</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- MACRO TUBES -->
+    <section class="macro-row">
+        <div class="tube" style="--accent:var(--volt)">
+            <span class="tube-label">PROTEIN</span>
+            <span class="tube-value" id="proteinTotal">0<small>g</small></span>
+        </div>
+        <div class="tube" style="--accent:var(--teal)">
+            <span class="tube-label">CARBS</span>
+            <span class="tube-value" id="carbsTotal">0<small>g</small></span>
+        </div>
+        <div class="tube" style="--accent:var(--ember)">
+            <span class="tube-label">FAT</span>
+            <span class="tube-value" id="fatTotal">0<small>g</small></span>
+        </div>
+    </section>
+
+    <!-- WATER / WEIGHT -->
+    <section class="panel split">
+        <div>
+            <h2 class="panel-title">💧 WATER</h2>
+            <div class="input-row">
+                <input type="number" id="waterInput" placeholder="Glasses">
+                <button onclick="saveWater()">Save</button>
+            </div>
+            <p class="readout" id="waterDisplay">0 Glasses</p>
+        </div>
+        <div>
+            <h2 class="panel-title">⚖ WEIGHT</h2>
+            <div class="input-row">
+                <input type="number" id="weightInput" placeholder="Weight (kg)">
+                <button onclick="saveWeight()">Save</button>
+            </div>
+            <p class="readout" id="weightDisplay">--</p>
+        </div>
+    </section>
+
     <!-- ASK FUEL AI COACH - PREMIUM -->
     <section class="panel" id="askPanel">
         <span class="ai-tag">🤖 AI · NUTRITION COACH</span>
@@ -185,7 +297,7 @@ button:disabled{opacity:.5;cursor:not-allowed;}
     </section>
 
     <section class="panel">
-        <h2 class="panel-title">ADD FOOD (200+ Foods)</h2>
+        <h2 class="panel-title">ADD FOOD (260+ Foods)</h2>
         <input id="search" placeholder="Search: chicken, rice, dal, paneer...">
         <select id="foodSelect"></select>
         <input id="quantity" type="number" placeholder="Quantity">
@@ -201,7 +313,33 @@ button:disabled{opacity:.5;cursor:not-allowed;}
 
     <section class="panel">
         <h2 class="panel-title">TODAY'S LOG</h2>
-        <div id="foodTable"></div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Food</th>
+                    <th>Qty</th>
+                    <th>Kcal</th>
+                    <th>Protein</th>
+                    <th>Carbs</th>
+                    <th>Fat</th>
+                    <th>Meal</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody id="foodTable"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2 class="panel-title">WEEKLY ENERGY</h2>
+        <canvas id="chart"></canvas>
+    </section>
+
+    <section class="panel">
+        <h2 class="panel-title">WEEKLY PROTEIN</h2>
+        <canvas id="proteinChart"></canvas>
     </section>
 
 </main>
@@ -228,9 +366,8 @@ const RAZORPAY_KEY = "YOUR_RAZORPAY_KEY_ID";
 const SUBSCRIPTION_PRICE = 9900;
 const TRIAL_DAYS = 3;
 
-// ============ COMPREHENSIVE FOOD DATABASE (200+ Foods) ============
+// ============ FOOD DATABASE (267 items merged from both versions) ============
 const foods = [
-  // VEGETABLES (30 items)
   { id: 1, name: "Tomato", unit: "piece", serving: 1, calories: 18, protein: 0.9, carbs: 3.9, fat: 0.2 },
   { id: 2, name: "Cucumber", unit: "piece", serving: 1, calories: 16, protein: 0.7, carbs: 3.6, fat: 0.1 },
   { id: 3, name: "Carrot", unit: "piece", serving: 1, calories: 41, protein: 0.9, carbs: 10, fat: 0.2 },
@@ -261,8 +398,6 @@ const foods = [
   { id: 28, name: "Beet Greens", unit: "100g", serving: 100, calories: 22, protein: 2.2, carbs: 4.3, fat: 0.2 },
   { id: 29, name: "Coriander Leaves", unit: "10g", serving: 10, calories: 3, protein: 0.2, carbs: 0.5, fat: 0 },
   { id: 30, name: "Mint Leaves", unit: "5g", serving: 5, calories: 1, protein: 0.1, carbs: 0.2, fat: 0 },
-
-  // FRUITS (25 items)
   { id: 31, name: "Apple", unit: "piece", serving: 1, calories: 95, protein: 0.5, carbs: 25, fat: 0.3 },
   { id: 32, name: "Banana", unit: "piece", serving: 1, calories: 105, protein: 1.3, carbs: 27, fat: 0.3 },
   { id: 33, name: "Orange", unit: "piece", serving: 1, calories: 62, protein: 1.2, carbs: 15.4, fat: 0.2 },
@@ -288,8 +423,6 @@ const foods = [
   { id: 53, name: "Chikoo (Sapota)", unit: "piece", serving: 1, calories: 83, protein: 0.4, carbs: 20, fat: 1 },
   { id: 54, name: "Custard Apple", unit: "100g", serving: 100, calories: 106, protein: 1.7, carbs: 25, fat: 0.6 },
   { id: 55, name: "Dates", unit: "1 piece", serving: 1, calories: 66, protein: 0.4, carbs: 18, fat: 0.2 },
-
-  // PROTEINS - NON VEG (40 items)
   { id: 56, name: "Chicken Breast (100g)", unit: "100g", serving: 100, calories: 165, protein: 31, carbs: 0, fat: 3.6 },
   { id: 57, name: "Chicken Thigh (100g)", unit: "100g", serving: 100, calories: 209, protein: 26, carbs: 0, fat: 11 },
   { id: 58, name: "Chicken Leg (100g)", unit: "100g", serving: 100, calories: 190, protein: 28, carbs: 0, fat: 8 },
@@ -330,8 +463,6 @@ const foods = [
   { id: 93, name: "Biryani - Chicken (100g)", unit: "100g", serving: 100, calories: 200, protein: 8, carbs: 25, fat: 7 },
   { id: 94, name: "Biryani - Mutton (100g)", unit: "100g", serving: 100, calories: 220, protein: 10, carbs: 25, fat: 9 },
   { id: 95, name: "Biryani - Fish (100g)", unit: "100g", serving: 100, calories: 210, protein: 12, carbs: 24, fat: 7 },
-
-  // PROTEINS - VEG (30 items)
   { id: 96, name: "Paneer", unit: "100g", serving: 100, calories: 265, protein: 18, carbs: 3, fat: 20 },
   { id: 97, name: "Tofu", unit: "100g", serving: 100, calories: 76, protein: 8, carbs: 1.9, fat: 4.8 },
   { id: 98, name: "Tempeh", unit: "100g", serving: 100, calories: 195, protein: 19, carbs: 7.6, fat: 11 },
@@ -362,8 +493,6 @@ const foods = [
   { id: 123, name: "Chana Masala (100g)", unit: "100g", serving: 100, calories: 180, protein: 9, carbs: 20, fat: 7 },
   { id: 124, name: "Aloo Gobi (100g)", unit: "100g", serving: 100, calories: 140, protein: 4, carbs: 18, fat: 6 },
   { id: 125, name: "Bhindi Masala (100g)", unit: "100g", serving: 100, calories: 130, protein: 3.5, carbs: 16, fat: 6 },
-
-  // DAIRY (15 items)
   { id: 126, name: "Milk (Whole, 100ml)", unit: "100ml", serving: 100, calories: 61, protein: 3.4, carbs: 4.8, fat: 3.3 },
   { id: 127, name: "Milk (Skimmed, 100ml)", unit: "100ml", serving: 100, calories: 35, protein: 3.6, carbs: 5, fat: 0.1 },
   { id: 128, name: "Yogurt (Plain, 100g)", unit: "100g", serving: 100, calories: 60, protein: 3.5, carbs: 4.7, fat: 3.3 },
@@ -379,8 +508,6 @@ const foods = [
   { id: 138, name: "Lassi (1 cup)", unit: "cup", serving: 1, calories: 220, protein: 6, carbs: 33, fat: 7 },
   { id: 139, name: "Buttermilk (1 cup)", unit: "cup", serving: 1, calories: 40, protein: 2, carbs: 4, fat: 1.5 },
   { id: 140, name: "Ice Cream (100g)", unit: "100g", serving: 100, calories: 207, protein: 3.5, carbs: 24, fat: 11 },
-
-  // GRAINS & CEREALS (20 items)
   { id: 141, name: "Rice (White, Cooked, 100g)", unit: "100g", serving: 100, calories: 130, protein: 2.7, carbs: 28, fat: 0.3 },
   { id: 142, name: "Rice (Brown, Cooked, 100g)", unit: "100g", serving: 100, calories: 123, protein: 2.7, carbs: 25.6, fat: 0.9 },
   { id: 143, name: "Basmati Rice (100g)", unit: "100g", serving: 100, calories: 130, protein: 2.6, carbs: 28.3, fat: 0.3 },
@@ -401,8 +528,6 @@ const foods = [
   { id: 158, name: "Pasta (Wheat, Cooked, 100g)", unit: "100g", serving: 100, calories: 131, protein: 5, carbs: 25, fat: 1.1 },
   { id: 159, name: "Noodles (Instant, 100g)", unit: "100g", serving: 100, calories: 138, protein: 4.5, carbs: 25, fat: 2.5 },
   { id: 160, name: "Cereal (Cornflakes, 30g)", unit: "30g", serving: 30, calories: 110, protein: 2.2, carbs: 24.4, fat: 0.3 },
-
-  // BREADS & ROTI (10 items)
   { id: 161, name: "Roti (Plain, 1 piece)", unit: "1 piece", serving: 1, calories: 120, protein: 3, carbs: 20, fat: 3 },
   { id: 162, name: "Paratha (Aloo, 1 piece)", unit: "1 piece", serving: 1, calories: 260, protein: 5, carbs: 36, fat: 10 },
   { id: 163, name: "Naan (1 piece)", unit: "1 piece", serving: 1, calories: 262, protein: 5.5, carbs: 45, fat: 6 },
@@ -413,8 +538,6 @@ const foods = [
   { id: 168, name: "Uttapam (1 piece)", unit: "1 piece", serving: 1, calories: 150, protein: 4, carbs: 25, fat: 4 },
   { id: 169, name: "Dhokla (100g)", unit: "100g", serving: 100, calories: 150, protein: 4, carbs: 20, fat: 5 },
   { id: 170, name: "Chapati (1 piece)", unit: "1 piece", serving: 1, calories: 104, protein: 3.5, carbs: 18, fat: 1.5 },
-
-  // SNACKS & READY-TO-EAT (30 items)
   { id: 171, name: "Samosa (1 piece)", unit: "1 piece", serving: 1, calories: 262, protein: 3.5, carbs: 24, fat: 17 },
   { id: 172, name: "Pakora (100g)", unit: "100g", serving: 100, calories: 280, protein: 6, carbs: 32, fat: 14 },
   { id: 173, name: "Vada (1 piece)", unit: "1 piece", serving: 1, calories: 100, protein: 2.5, carbs: 12, fat: 5 },
@@ -445,8 +568,6 @@ const foods = [
   { id: 198, name: "Granola Bar (1 piece)", unit: "1 piece", serving: 1, calories: 150, protein: 4, carbs: 20, fat: 6 },
   { id: 199, name: "Vada Pav (1 piece)", unit: "1 piece", serving: 1, calories: 290, protein: 6, carbs: 40, fat: 12 },
   { id: 200, name: "Pav Bhaji (1 plate)", unit: "1 plate", serving: 1, calories: 400, protein: 8, carbs: 55, fat: 16 },
-
-  // BEVERAGES (15 items)
   { id: 201, name: "Water", unit: "glass (250ml)", serving: 1, calories: 0, protein: 0, carbs: 0, fat: 0 },
   { id: 202, name: "Tea (with milk & sugar)", unit: "cup", serving: 1, calories: 60, protein: 1.5, carbs: 9, fat: 2 },
   { id: 203, name: "Coffee (with milk & sugar)", unit: "cup", serving: 1, calories: 70, protein: 2, carbs: 10, fat: 2.5 },
@@ -461,14 +582,86 @@ const foods = [
   { id: 212, name: "Milkshake (Chocolate)", unit: "1 glass", serving: 1, calories: 350, protein: 9, carbs: 55, fat: 10 },
   { id: 213, name: "Buttermilk / Chaas", unit: "1 glass", serving: 1, calories: 40, protein: 2, carbs: 4, fat: 1.5 },
   { id: 214, name: "Lassi (Sweet)", unit: "1 glass", serving: 1, calories: 220, protein: 6, carbs: 33, fat: 7 },
-  { id: 215, name: "Coconut Water", unit: "1 cup (240ml)", serving: 1, calories: 46, protein: 0.7, carbs: 9, fat: 0.2 }
+  { id: 215, name: "Coconut Water", unit: "1 cup (240ml)", serving: 1, calories: 46, protein: 0.7, carbs: 9, fat: 0.2 },
+  { id: 216, name: "Cooked Rice", unit: "100g", serving: 100, calories: 130, protein: 2.7, carbs: 28, fat: 0.3 },
+  { id: 217, name: "Whey Protein", unit: "scoop", serving: 1, calories: 120, protein: 24, carbs: 3, fat: 1.5 },
+  { id: 218, name: "Brown Rice", unit: "100g", serving: 100, calories: 123, protein: 2.7, carbs: 25.6, fat: 0.9 },
+  { id: 219, name: "Curd (Yogurt)", unit: "100g", serving: 100, calories: 60, protein: 3.5, carbs: 4.7, fat: 3.3 },
+  { id: 220, name: "Dal (Cooked Lentils)", unit: "100g", serving: 100, calories: 116, protein: 9, carbs: 20, fat: 0.4 },
+  { id: 221, name: "Salmon (Cooked)", unit: "100g", serving: 100, calories: 208, protein: 20, carbs: 0, fat: 13 },
+  { id: 222, name: "Whole Wheat Bread", unit: "slice", serving: 1, calories: 69, protein: 3.6, carbs: 12, fat: 0.9 },
+  { id: 223, name: "Cheddar Cheese", unit: "100g", serving: 100, calories: 402, protein: 25, carbs: 1.3, fat: 33 },
+  { id: 224, name: "Avocado", unit: "piece", serving: 1, calories: 240, protein: 3, carbs: 12.8, fat: 22 },
+  { id: 225, name: "Poha", unit: "100g", serving: 100, calories: 130, protein: 2.5, carbs: 27, fat: 1.5 },
+  { id: 226, name: "Sprouts (Moong)", unit: "100g", serving: 100, calories: 30, protein: 3, carbs: 5.9, fat: 0.2 },
+  { id: 227, name: "Soybean (Cooked)", unit: "100g", serving: 100, calories: 173, protein: 16.6, carbs: 9.9, fat: 9 },
+  { id: 228, name: "Fried Rice", unit: "100g", serving: 100, calories: 163, protein: 4, carbs: 20, fat: 7 },
+  { id: 229, name: "French Fries", unit: "100g", serving: 100, calories: 312, protein: 3.4, carbs: 41, fat: 15 },
+  { id: 230, name: "Chicken Biryani", unit: "100g", serving: 100, calories: 200, protein: 8, carbs: 25, fat: 7 },
+  { id: 231, name: "Veg Momos", unit: "piece", serving: 1, calories: 35, protein: 1.2, carbs: 5, fat: 1 },
+  { id: 232, name: "Burrito", unit: "piece", serving: 1, calories: 450, protein: 18, carbs: 55, fat: 17 },
+  { id: 233, name: "Veg Sandwich", unit: "piece", serving: 1, calories: 250, protein: 8, carbs: 35, fat: 8 },
+  { id: 234, name: "Chocolate (Milk)", unit: "100g", serving: 100, calories: 535, protein: 7.7, carbs: 59, fat: 30 },
+  { id: 235, name: "Cold Drink / Soda", unit: "can (330ml)", serving: 1, calories: 139, protein: 0, carbs: 35, fat: 0 },
+  { id: 236, name: "Chicken Roll (Kathi Roll)", unit: "piece", serving: 1, calories: 350, protein: 18, carbs: 35, fat: 15 },
+  { id: 237, name: "Chicken Fried Rice", unit: "100g", serving: 100, calories: 175, protein: 8, carbs: 20, fat: 6 },
+  { id: 238, name: "Chicken Momos", unit: "piece", serving: 1, calories: 40, protein: 2.5, carbs: 5, fat: 1.2 },
+  { id: 239, name: "Chicken Burger", unit: "piece", serving: 1, calories: 350, protein: 20, carbs: 32, fat: 15 },
+  { id: 240, name: "Chicken Sandwich", unit: "piece", serving: 1, calories: 300, protein: 18, carbs: 30, fat: 12 },
+  { id: 241, name: "Chicken Noodles", unit: "100g", serving: 100, calories: 150, protein: 7, carbs: 22, fat: 4 },
+  { id: 242, name: "Chicken Shawarma", unit: "piece", serving: 1, calories: 500, protein: 28, carbs: 45, fat: 22 },
+  { id: 243, name: "Chicken Nuggets", unit: "piece", serving: 1, calories: 47, protein: 2.3, carbs: 3, fat: 3 },
+  { id: 244, name: "Butter Chicken", unit: "100g", serving: 100, calories: 190, protein: 12, carbs: 6, fat: 13 },
+  { id: 245, name: "Chicken Curry", unit: "100g", serving: 100, calories: 150, protein: 14, carbs: 5, fat: 8 },
+  { id: 246, name: "Cream Biscuits", unit: "piece", serving: 1, calories: 48, protein: 0.6, carbs: 7, fat: 2 },
+  { id: 247, name: "Rusk", unit: "piece", serving: 1, calories: 40, protein: 1, carbs: 7, fat: 1 },
+  { id: 248, name: "Namkeen / Mixture", unit: "100g", serving: 100, calories: 480, protein: 12, carbs: 50, fat: 26 },
+  { id: 249, name: "Potato Chips", unit: "100g", serving: 100, calories: 536, protein: 7, carbs: 53, fat: 35 },
+  { id: 250, name: "Fruit Juice (Packaged)", unit: "glass", serving: 1, calories: 90, protein: 0.5, carbs: 22, fat: 0.2 },
+  { id: 251, name: "Soybean Biryani", unit: "100g", serving: 100, calories: 165, protein: 8, carbs: 22, fat: 5 },
+  { id: 252, name: "Chhole Bhature", unit: "plate", serving: 1, calories: 650, protein: 15, carbs: 80, fat: 28 },
+  { id: 253, name: "Rajma Chawal", unit: "plate", serving: 1, calories: 380, protein: 14, carbs: 60, fat: 8 },
+  { id: 254, name: "Kadhi Chawal", unit: "plate", serving: 1, calories: 320, protein: 8, carbs: 50, fat: 9 },
+  { id: 255, name: "Aloo Paratha", unit: "piece", serving: 1, calories: 260, protein: 5, carbs: 36, fat: 10 },
+  { id: 256, name: "Dal Makhani", unit: "100g", serving: 100, calories: 150, protein: 7, carbs: 14, fat: 8 },
+  { id: 257, name: "Chole (Chickpea Curry)", unit: "100g", serving: 100, calories: 180, protein: 8, carbs: 20, fat: 8 },
+  { id: 258, name: "Veg Biryani", unit: "100g", serving: 100, calories: 160, protein: 4, carbs: 25, fat: 5 },
+  { id: 259, name: "Chicken Pizza (Slice)", unit: "slice", serving: 1, calories: 310, protein: 16, carbs: 32, fat: 13 },
+  { id: 260, name: "Chicken Strips", unit: "piece", serving: 1, calories: 80, protein: 6, carbs: 4, fat: 4.5 },
+  { id: 261, name: "Chizza (Chicken Crust Pizza)", unit: "piece", serving: 1, calories: 400, protein: 22, carbs: 15, fat: 27 },
+  { id: 262, name: "Chicken Popcorn", unit: "100g", serving: 100, calories: 280, protein: 14, carbs: 20, fat: 16 },
+  { id: 263, name: "Grilled Chicken Wrap", unit: "piece", serving: 1, calories: 350, protein: 25, carbs: 30, fat: 14 },
+  { id: 264, name: "Haleem (Mutton/Chicken)", unit: "100g", serving: 100, calories: 180, protein: 10, carbs: 15, fat: 9 },
+  { id: 265, name: "Daleem (Veg Haleem)", unit: "100g", serving: 100, calories: 150, protein: 7, carbs: 20, fat: 5 },
+  { id: 266, name: "Nihari", unit: "100g", serving: 100, calories: 220, protein: 15, carbs: 8, fat: 14 },
+  { id: 267, name: "Khichda", unit: "100g", serving: 100, calories: 170, protein: 9, carbs: 18, fat: 7 }
 ];
 
 // ============ STATE ============
 let currentUser = null;
 let isPremium = false;
 let selectedMeal = "Breakfast";
-let data = {};
+let data = { goal: 2000, days: {} };
+
+// ============ PERSISTENCE (per-user, on-device) ============
+function storageKey() {
+  return "fuel_data_" + (currentUser ? currentUser.uid : "guest");
+}
+
+function loadData() {
+  let raw = null;
+  try { raw = localStorage.getItem(storageKey()); } catch (e) { raw = null; }
+  const loaded = raw ? JSON.parse(raw) : { goal: 2000, days: {} };
+  if (!loaded.goal) loaded.goal = 2000;
+  if (!loaded.days) loaded.days = {};
+  const key = todayKey();
+  if (!loaded.days[key]) loaded.days[key] = { meals: [], water: 0, weight: null };
+  return loaded;
+}
+
+function saveData() {
+  try { localStorage.setItem(storageKey(), JSON.stringify(data)); } catch (e) { /* storage unavailable */ }
+}
 
 // ============ AUTH STATE ============
 auth.onAuthStateChanged(async (user) => {
@@ -530,19 +723,7 @@ async function loadUserSubscription() {
     const doc = await db.collection("subscriptions").doc(currentUser.uid).get();
     if (doc.exists) {
       const sub = doc.data();
-      const now = new Date();
-      const trialEnd = sub.trialEndsAt ? sub.trialEndsAt.toDate() : null;
-
-      if (sub.status === "active") {
-        isPremium = true;
-      } else if (sub.status === "trial" && trialEnd && now < trialEnd) {
-        isPremium = true;
-      } else {
-        isPremium = false;
-        if (sub.status === "trial" && trialEnd && now >= trialEnd) {
-          await db.collection("subscriptions").doc(currentUser.uid).update({ status: "expired" });
-        }
-      }
+      isPremium = sub.status === "active";
       updatePremiumUI();
       if (!isPremium) showPaywall();
     } else {
@@ -561,7 +742,7 @@ async function startSubscription() {
     hidePaywall();
     updatePremiumUI();
     await db.collection("subscriptions").doc(currentUser.uid).set({
-      status: "trial",
+      status: "active",
       trialEndsAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
       createdAt: new Date()
     });
@@ -614,16 +795,24 @@ function hidePaywall() {
 }
 
 // ============ APP ============
-function initApp() {
-  const key = todayKey();
-  data[key] = data[key] || { meals: [], water: 0, weight: null };
-  initFoodSelect();
-  initMealChips();
-  renderFoodTable();
-}
+const MEAL_COLORS = {
+  Breakfast: "var(--teal)",
+  Lunch: "var(--fuel)",
+  Dinner: "var(--ember)",
+  Snacks: "var(--volt)"
+};
 
 function todayKey() {
   return new Date().toISOString().slice(0, 10);
+}
+
+function initApp() {
+  data = loadData();
+  initGaugeTicks();
+  initFoodSelect();
+  initMealChips();
+  document.getElementById("goalInput").placeholder = String(data.goal || 2000);
+  render();
 }
 
 function initFoodSelect() {
@@ -634,7 +823,7 @@ function initFoodSelect() {
   function populateFoodSelect(filter = "") {
     const term = filter.trim().toLowerCase();
     const filtered = foods.filter(f => f.name.toLowerCase().includes(term));
-    foodSelect.innerHTML = filtered.map(f => `<option value="${f.id}">${f.name}</option>`).join("");
+    foodSelect.innerHTML = filtered.map(f => `<option value="${f.id}">${f.name} (${f.unit})</option>`).join("");
     updateUnitHint();
   }
 
@@ -675,64 +864,234 @@ function addFood() {
   const entry = {
     entryId: Date.now(),
     name: food.name,
-    qty: qty + " " + food.unit,
+    qty,
+    unit: food.unit,
+    meal: selectedMeal,
     calories: Math.round(food.calories * ratio),
     protein: +(food.protein * ratio).toFixed(1),
     carbs: +(food.carbs * ratio).toFixed(1),
     fat: +(food.fat * ratio).toFixed(1)
   };
 
-  const key = todayKey();
-  data[key].meals.push(entry);
+  data.days[todayKey()].meals.push(entry);
+  saveData();
   quantityInput.value = "";
-  renderFoodTable();
+  render();
 }
 
 function deleteFood(entryId) {
   const key = todayKey();
-  data[key].meals = data[key].meals.filter(m => m.entryId !== entryId);
-  renderFoodTable();
+  data.days[key].meals = data.days[key].meals.filter(m => m.entryId !== entryId);
+  saveData();
+  render();
 }
 
-function renderFoodTable() {
-  const meals = data[todayKey()].meals;
-  const table = document.getElementById("foodTable");
-  
-  if (meals.length === 0) {
-    table.innerHTML = "<p style='color:var(--muted);text-align:center;padding:20px;'>No foods logged yet</p>";
-  } else {
-    let html = "<table style='width:100%;border-collapse:collapse;'>";
-    html += "<tr style='border-bottom:1px solid var(--line);'><th style='text-align:left;padding:8px;color:var(--muted);font-size:12px;'>Food</th><th style='text-align:right;padding:8px;color:var(--muted);font-size:12px;'>Cal</th><th style='text-align:right;padding:8px;color:var(--muted);font-size:12px;'>P</th><th style='text-align:right;padding:8px;color:var(--muted);font-size:12px;'>C</th><th style='text-align:right;padding:8px;color:var(--muted);font-size:12px;'>F</th><th></th></tr>";
-    
-    let totalCal = 0, totalP = 0, totalC = 0, totalF = 0;
-    
-    meals.forEach(m => {
-      totalCal += m.calories;
-      totalP += m.protein;
-      totalC += m.carbs;
-      totalF += m.fat;
-      html += `<tr style='border-bottom:1px solid var(--line);'>
-        <td style='padding:8px;font-size:14px;'>${m.name}</td>
-        <td style='padding:8px;text-align:right;font-family:monospace;font-size:12px;'>${m.calories}</td>
-        <td style='padding:8px;text-align:right;font-family:monospace;font-size:12px;'>${m.protein}g</td>
-        <td style='padding:8px;text-align:right;font-family:monospace;font-size:12px;'>${m.carbs}g</td>
-        <td style='padding:8px;text-align:right;font-family:monospace;font-size:12px;'>${m.fat}g</td>
-        <td style='padding:8px;'><button onclick="deleteFood(${m.entryId})" style='width:auto;padding:4px 8px;font-size:12px;background:var(--ember);'>✕</button></td>
-      </tr>`;
-    });
-    
-    html += `<tr style='border-bottom:2px solid var(--line);font-weight:600;'>
-      <td style='padding:8px;'>TOTAL</td>
-      <td style='padding:8px;text-align:right;font-family:monospace;color:var(--fuel);'>${totalCal}</td>
-      <td style='padding:8px;text-align:right;font-family:monospace;color:var(--volt);'>${totalP.toFixed(1)}g</td>
-      <td style='padding:8px;text-align:right;font-family:monospace;color:var(--teal);'>${totalC.toFixed(1)}g</td>
-      <td style='padding:8px;text-align:right;font-family:monospace;color:var(--ember);'>${totalF.toFixed(1)}g</td>
-      <td></td>
-    </tr>`;
-    
-    html += "</table>";
-    table.innerHTML = html;
+function saveGoal() {
+  const val = parseFloat(document.getElementById("goalInput").value);
+  if (!val || val <= 0) return;
+  data.goal = val;
+  saveData();
+  document.getElementById("goalInput").value = "";
+  render();
+}
+
+function saveWater() {
+  const val = parseFloat(document.getElementById("waterInput").value);
+  if (isNaN(val) || val < 0) return;
+  data.days[todayKey()].water = val;
+  saveData();
+  document.getElementById("waterInput").value = "";
+  renderWater();
+}
+
+function renderWater() {
+  const glasses = data.days[todayKey()].water || 0;
+  document.getElementById("waterDisplay").textContent = `${glasses} Glasses`;
+}
+
+function saveWeight() {
+  const val = parseFloat(document.getElementById("weightInput").value);
+  if (isNaN(val) || val <= 0) return;
+  data.days[todayKey()].weight = val;
+  saveData();
+  document.getElementById("weightInput").value = "";
+  renderWeight();
+}
+
+function renderWeight() {
+  const w = data.days[todayKey()].weight;
+  document.getElementById("weightDisplay").textContent = w ? `${w} kg` : "--";
+}
+
+// ---------- Gauge ----------
+const GAUGE_R = 90;
+const GAUGE_CIRC = 2 * Math.PI * GAUGE_R;
+let gaugeTicksInit = false;
+
+function initGaugeTicks() {
+  if (gaugeTicksInit) return;
+  gaugeTicksInit = true;
+  const gaugeFillEl = document.getElementById("gaugeFill");
+  gaugeFillEl.style.strokeDasharray = `${GAUGE_CIRC}`;
+
+  const group = document.getElementById("gaugeTicks");
+  const cx = 110, cy = 110, outerR = 100, innerR = 94, majorInnerR = 90;
+  const count = 40;
+  for (let i = 0; i < count; i++) {
+    const angle = (i / count) * 2 * Math.PI - Math.PI / 2;
+    const isMajor = i % 5 === 0;
+    const rInner = isMajor ? majorInnerR : innerR;
+    const x1 = cx + outerR * Math.cos(angle);
+    const y1 = cy + outerR * Math.sin(angle);
+    const x2 = cx + rInner * Math.cos(angle);
+    const y2 = cy + rInner * Math.sin(angle);
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("x1", x1.toFixed(2));
+    line.setAttribute("y1", y1.toFixed(2));
+    line.setAttribute("x2", x2.toFixed(2));
+    line.setAttribute("y2", y2.toFixed(2));
+    line.setAttribute("class", isMajor ? "tick major" : "tick");
+    group.appendChild(line);
   }
+}
+
+function renderGauge(totalCalories) {
+  const gaugeFillEl = document.getElementById("gaugeFill");
+  const goal = data.goal || 2000;
+  const percent = Math.max(0, Math.min(1, totalCalories / goal));
+  const offset = GAUGE_CIRC * (1 - percent);
+  gaugeFillEl.style.strokeDashoffset = `${offset}`;
+  gaugeFillEl.style.stroke = totalCalories > goal ? "var(--ember)" : "var(--fuel)";
+
+  document.getElementById("gaugeValue").textContent = Math.round(totalCalories);
+  const remaining = goal - totalCalories;
+  document.getElementById("gaugeGoalText").textContent =
+    remaining >= 0 ? `of ${goal} — ${Math.round(remaining)} left` : `${Math.round(-remaining)} over ${goal}`;
+}
+
+// ---------- Table + dashboard ----------
+function renderFoodTable() {
+  const meals = data.days[todayKey()].meals;
+  const tbody = document.getElementById("foodTable");
+
+  if (meals.length === 0) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="8">No foods logged yet — log your first meal above.</td></tr>`;
+  } else {
+    tbody.innerHTML = meals.map(m => `
+        <tr>
+          <td>${m.name}</td>
+          <td>${m.qty} ${m.unit}</td>
+          <td>${m.calories}</td>
+          <td>${m.protein}g</td>
+          <td>${m.carbs}g</td>
+          <td>${m.fat}g</td>
+          <td><span class="meal-tag" style="--accent:${MEAL_COLORS[m.meal] || 'var(--muted)'}">${m.meal || ''}</span></td>
+          <td><button class="delete-btn" onclick="deleteFood(${m.entryId})">✕</button></td>
+        </tr>`).join("");
+  }
+
+  return meals.reduce((acc, m) => {
+    acc.calories += m.calories;
+    acc.protein += m.protein;
+    acc.carbs += m.carbs;
+    acc.fat += m.fat;
+    return acc;
+  }, { calories: 0, protein: 0, carbs: 0, fat: 0 });
+}
+
+function render() {
+  const totals = renderFoodTable();
+
+  renderGauge(totals.calories);
+  document.getElementById("proteinTotal").innerHTML = `${totals.protein.toFixed(1)}<small>g</small>`;
+  document.getElementById("carbsTotal").innerHTML = `${totals.carbs.toFixed(1)}<small>g</small>`;
+  document.getElementById("fatTotal").innerHTML = `${totals.fat.toFixed(1)}<small>g</small>`;
+
+  document.getElementById("goalInput").placeholder = String(data.goal || 2000);
+
+  renderWater();
+  renderWeight();
+  renderChart();
+  renderProteinChart();
+}
+
+// ---------- Weekly charts ----------
+let chartInstance = null;
+let proteinChartInstance = null;
+
+const chartAxisOptions = {
+  ticks: { color: "#8B96AC", font: { family: "IBM Plex Mono", size: 11 } },
+  grid: { color: "#2A3550" }
+};
+
+function renderChart() {
+  const labels = [];
+  const values = [];
+
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const key = d.toISOString().slice(0, 10);
+    const dayData = data.days[key];
+    const total = dayData ? dayData.meals.reduce((sum, m) => sum + m.calories, 0) : 0;
+    labels.push(d.toLocaleDateString(undefined, { weekday: "short" }));
+    values.push(total);
+  }
+
+  const ctx = document.getElementById("chart");
+  if (!ctx || typeof Chart === "undefined") return;
+
+  if (chartInstance) {
+    chartInstance.data.labels = labels;
+    chartInstance.data.datasets[0].data = values;
+    chartInstance.update();
+    return;
+  }
+
+  chartInstance = new Chart(ctx, {
+    type: "bar",
+    data: { labels, datasets: [{ label: "Calories", data: values, backgroundColor: "#FF8A3D", borderRadius: 6 }] },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, ...chartAxisOptions }, x: { ...chartAxisOptions } }
+    }
+  });
+}
+
+function renderProteinChart() {
+  const labels = [];
+  const values = [];
+
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const key = d.toISOString().slice(0, 10);
+    const dayData = data.days[key];
+    const total = dayData ? dayData.meals.reduce((sum, m) => sum + m.protein, 0) : 0;
+    labels.push(d.toLocaleDateString(undefined, { weekday: "short" }));
+    values.push(+total.toFixed(1));
+  }
+
+  const ctx = document.getElementById("proteinChart");
+  if (!ctx || typeof Chart === "undefined") return;
+
+  if (proteinChartInstance) {
+    proteinChartInstance.data.labels = labels;
+    proteinChartInstance.data.datasets[0].data = values;
+    proteinChartInstance.update();
+    return;
+  }
+
+  proteinChartInstance = new Chart(ctx, {
+    type: "bar",
+    data: { labels, datasets: [{ label: "Protein (g)", data: values, backgroundColor: "#C8FF4D", borderRadius: 6 }] },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, ...chartAxisOptions }, x: { ...chartAxisOptions } }
+    }
+  });
 }
 
 // ============ AI FUNCTIONS ============
