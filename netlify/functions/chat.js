@@ -75,14 +75,15 @@ exports.handler = async function (event) {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${apiKey}`
       },
-      body: JSON.stringify({
+            body: JSON.stringify({
         model: "openai/gpt-oss-120b",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userMessage }
         ],
-        max_tokens: 300,
-        temperature: 0.7
+        max_tokens: 600,
+        temperature: 0.7,
+        reasoning_effort: "low"
       })
     });
 
@@ -92,7 +93,9 @@ exports.handler = async function (event) {
     }
 
     const data = await response.json();
-    const reply = (data.choices?.[0]?.message?.content || "No response generated.").trim();
+    const msg = data.choices?.[0]?.message || {};
+    const reply = (msg.content || msg.reasoning || "No response generated.").trim();
+
 
     return {
       statusCode: 200,
