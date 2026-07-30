@@ -23,7 +23,7 @@ exports.handler = async function (event) {
 
   const { mode, message, context } = body;
 
-   let systemPrompt = "";
+  let systemPrompt = "";
   let userMessage = "";
 
   if (mode === "chat") {
@@ -65,7 +65,6 @@ exports.handler = async function (event) {
   }
 
   if (!userMessage.trim()) {
-
     return { statusCode: 400, body: JSON.stringify({ error: "Empty message." }) };
   }
 
@@ -78,7 +77,6 @@ exports.handler = async function (event) {
       },
       body: JSON.stringify({
         model: "openai/gpt-oss-120b",
-",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userMessage }
