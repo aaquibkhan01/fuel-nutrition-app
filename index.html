@@ -183,10 +183,10 @@ canvas{margin-top:6px;max-height:260px;}
     <div class="paywall-container">
         <div class="paywall-title">Unlock Premium</div>
         <div class="paywall-subtitle">AI coach + 260+ foods</div>
-        <div class="trial-badge">✨ 3 Days Free Trial</div>
+        <div class="trial-badge">🔒 Secure payment via Razorpay</div>
         <div class="price-display">
             <div class="price-amount">₹99</div>
-            <div class="price-period">per month (after trial)</div>
+            <div class="price-period">per month</div>
         </div>
         <div class="features-list">
             <div class="feature-item"><span class="feature-check">✓</span> <span>🤖 Ask AI Nutrition Coach</span></div>
@@ -195,7 +195,7 @@ canvas{margin-top:6px;max-height:260px;}
             <div class="feature-item"><span class="feature-check">✓</span> <span>260+ foods database</span></div>
             <div class="feature-item"><span class="feature-check">✓</span> <span>Weekly analytics</span></div>
         </div>
-        <button class="paywall-btn" onclick="startSubscription()">Start 3-Day Free Trial</button>
+        <button class="paywall-btn" id="subscribeBtn" onclick="startSubscription()">Pay ₹99 — Unlock Premium</button>
         <div class="paywall-skip" onclick="skipPaywall()">Continue as Free User</div>
     </div>
 </div>
@@ -362,9 +362,9 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 
 // ============ RAZORPAY CONFIG ============
-const RAZORPAY_KEY = "YOUR_RAZORPAY_KEY_ID";
-const SUBSCRIPTION_PRICE = 9900;
-const TRIAL_DAYS = 3;
+// Key ID + order creation happen server-side (netlify/functions/create-order.js)
+// so the secret key is never exposed to the browser.
+const SUBSCRIPTION_PRICE = 9900; // ₹99.00 in paise, for display only — server enforces the real amount
 
 // ============ FOOD DATABASE (267 items merged from both versions) ============
 const foods = [
@@ -723,7 +723,17 @@ async function loadUserSubscription() {
     const doc = await db.collection("subscriptions").doc(currentUser.uid).get();
     if (doc.exists) {
       const sub = doc.data();
-      isPremium = sub.status === "active";
+      const now = new Date();
+      const expiresAt = sub.expiresAt ? sub.expiresAt.toDate() : null;
+
+      if (sub.status === "active" && expiresAt && now < expiresAt) {
+        isPremium = true;
+      } else {
+        isPremium = false;
+        if (sub.status === "active" && expiresAt && now >= expiresAt) {
+          await db.collection("subscriptions").doc(currentUser.uid).update({ status: "expired" });
+        }
+      }
       updatePremiumUI();
       if (!isPremium) showPaywall();
     } else {
@@ -736,18 +746,89 @@ async function loadUserSubscription() {
 }
 
 async function startSubscription() {
+  const btn = document.getElementById("subscribeBtn");
+  btn.disabled = true;
+  btn.textContent = "Loading...";
+
   try {
-    alert("Razorpay integration coming soon! You get 3 days free for testing.");
+    // 1. Ask our server to create a Razorpay order (server enforces the real amount)
+    const orderRes = await fetch("/.netlify/functions/create-order", { method: "POST" });
+    const order = await orderRes.json();
+
+    if (!orderRes.ok || !order.orderId) {
+      throw new Error(order.error || "Could not start payment. Please try again.");
+    }
+
+    // 2. Open Razorpay Checkout
+    const options = {
+      key: order.keyId,
+      amount: order.amount,
+      currency: order.currency,
+      name: "Fuel Premium",
+      description: "1 Month Premium Access",
+      order_id: order.orderId,
+      handler: async function (response) {
+        await confirmPayment(response);
+      },
+      prefill: {
+        email: currentUser.email || ""
+      },
+      theme: { color: "#FF8A3D" },
+      modal: {
+        ondismiss: function () {
+          btn.disabled = false;
+          btn.textContent = "Pay ₹99 — Unlock Premium";
+        }
+      }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.on("payment.failed", function (response) {
+      alert("Payment failed: " + (response.error?.description || "Please try again."));
+      btn.disabled = false;
+      btn.textContent = "Pay ₹99 — Unlock Premium";
+    });
+    rzp.open();
+  } catch (err) {
+    alert("Error: " + err.message);
+    btn.disabled = false;
+    btn.textContent = "Pay ₹99 — Unlock Premium";
+  }
+}
+
+async function confirmPayment(response) {
+  try {
+    // 3. Verify the payment signature server-side — never trust the browser alone
+    const verifyRes = await fetch("/.netlify/functions/verify-payment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        razorpay_order_id: response.razorpay_order_id,
+        razorpay_payment_id: response.razorpay_payment_id,
+        razorpay_signature: response.razorpay_signature
+      })
+    });
+    const result = await verifyRes.json();
+
+    if (!verifyRes.ok || !result.verified) {
+      throw new Error(result.error || "Payment could not be verified.");
+    }
+
+    // 4. Verified — grant 30 days of premium access
+    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    await db.collection("subscriptions").doc(currentUser.uid).set({
+      status: "active",
+      paymentId: result.paymentId,
+      orderId: result.orderId,
+      expiresAt: expiresAt,
+      createdAt: new Date()
+    });
+
     isPremium = true;
     hidePaywall();
     updatePremiumUI();
-    await db.collection("subscriptions").doc(currentUser.uid).set({
-      status: "active",
-      trialEndsAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
-      createdAt: new Date()
-    });
   } catch (err) {
-    alert("Error: " + err.message);
+    alert("Payment succeeded but we couldn't confirm it: " + err.message + "\nPlease contact support with your payment ID.");
   }
 }
 
