@@ -77,7 +77,7 @@ exports.handler = async function (event) {
         "Authorization": `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: "model: "openai/gpt-oss-120b",
+        model: "openai/gpt-oss-120b",
 ",
         messages: [
           { role: "system", content: systemPrompt },
