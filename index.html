@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fuel - Premium Nutrition Tracker</title>
+<title>Bodyfuel - Premium Nutrition Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -150,44 +150,61 @@ canvas{margin-top:6px;max-height:260px;}
 /* ---------- Splash Screen ---------- */
 #splashScreen{
     position:fixed;inset:0;z-index:3000;
-    background:var(--ink);
-    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
-    transition:opacity .4s ease;
+    background:radial-gradient(circle at 50% 40%, #16223a 0%, var(--ink) 70%);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+    transition:opacity .5s ease;
 }
 #splashScreen.hidden{opacity:0;pointer-events:none;}
+
+.splash-ring-wrap{
+    position:relative;width:132px;height:132px;
+    display:flex;align-items:center;justify-content:center;
+}
+.splash-ring-svg{width:100%;height:100%;transform:rotate(-90deg);}
+.splash-ring-track{fill:none;stroke:var(--panel-2);stroke-width:6;}
+.splash-ring-fill{
+    fill:none;stroke:var(--fuel);stroke-width:6;stroke-linecap:round;
+    stroke-dasharray:326.7;stroke-dashoffset:326.7;
+    animation:splashRingFill 1.8s cubic-bezier(.65,0,.35,1) infinite;
+    filter:drop-shadow(0 0 6px rgba(255,138,61,.7));
+}
 .splash-mark{
-    font-size:56px;
-    animation:splashPulse 1.4s ease-in-out infinite;
-    filter:drop-shadow(0 0 16px rgba(255,138,61,.6));
+    position:absolute;font-size:44px;
+    animation:splashMarkPulse 1.8s cubic-bezier(.65,0,.35,1) infinite;
 }
 .splash-name{
     font-family:var(--font-display);
     font-weight:700;
-    font-size:28px;
-    letter-spacing:2px;
+    font-size:26px;
+    letter-spacing:3px;
     color:var(--paper);
+    margin-top:8px;
     opacity:0;
-    animation:splashFadeIn .6s ease forwards .2s;
+    animation:splashFadeIn .7s ease forwards .3s;
 }
-.splash-dots{display:flex;gap:6px;margin-top:6px;}
-.splash-dots span{
-    width:6px;height:6px;border-radius:50%;background:var(--fuel);
-    animation:splashDot 1.2s ease-in-out infinite;
+.splash-tagline{
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:2px;
+    color:var(--muted);
+    text-transform:uppercase;
+    opacity:0;
+    animation:splashFadeIn .7s ease forwards .55s;
 }
-.splash-dots span:nth-child(2){animation-delay:.2s;}
-.splash-dots span:nth-child(3){animation-delay:.4s;}
 
-@keyframes splashPulse{
-    0%,100%{transform:scale(1);opacity:1;}
-    50%{transform:scale(1.12);opacity:.85;}
+@keyframes splashRingFill{
+    0%{stroke-dashoffset:326.7;stroke:var(--fuel);}
+    45%{stroke-dashoffset:0;stroke:var(--volt);}
+    55%{stroke-dashoffset:0;stroke:var(--volt);}
+    100%{stroke-dashoffset:-326.7;stroke:var(--fuel);}
+}
+@keyframes splashMarkPulse{
+    0%,100%{transform:scale(1);}
+    50%{transform:scale(1.15);}
 }
 @keyframes splashFadeIn{
     from{opacity:0;transform:translateY(6px);}
     to{opacity:1;transform:translateY(0);}
-}
-@keyframes splashDot{
-    0%,100%{opacity:.3;transform:translateY(0);}
-    50%{opacity:1;transform:translateY(-4px);}
 }
 </style>
 </head>
@@ -195,15 +212,21 @@ canvas{margin-top:6px;max-height:260px;}
 
 <!-- SPLASH SCREEN -->
 <div id="splashScreen">
-    <div class="splash-mark">⛽</div>
-    <div class="splash-name">FUEL</div>
-    <div class="splash-dots"><span></span><span></span><span></span></div>
+    <div class="splash-ring-wrap">
+        <svg class="splash-ring-svg" viewBox="0 0 132 132">
+            <circle class="splash-ring-track" cx="66" cy="66" r="52"></circle>
+            <circle class="splash-ring-fill" cx="66" cy="66" r="52"></circle>
+        </svg>
+        <div class="splash-mark">⛽</div>
+    </div>
+    <div class="splash-name">BODYFUEL</div>
+    <div class="splash-tagline">Nutrition, Simplified</div>
 </div>
 
 <!-- AUTH SCREEN -->
 <div class="auth-screen active" id="authScreen">
     <div class="auth-container">
-        <div class="auth-title">⛽ Fuel Premium</div>
+        <div class="auth-title">⛽ Bodyfuel Premium</div>
         
         <div id="loginForm">
             <div style="text-align:center;margin-bottom:20px;color:var(--muted);">Sign in to your account</div>
@@ -258,7 +281,7 @@ canvas{margin-top:6px;max-height:260px;}
     <div class="topbar-inner">
         <div class="brand">
             <span class="brand-mark">⛽</span>
-            <span class="brand-name">FUEL</span>
+            <span class="brand-name">BODYFUEL</span>
         </div>
         <div class="user-menu">
             <span class="user-badge" id="userBadge">FREE</span>
@@ -333,10 +356,10 @@ canvas{margin-top:6px;max-height:260px;}
         </div>
     </section>
 
-    <!-- ASK FUEL AI COACH - PREMIUM -->
+    <!-- ASK BODYFUEL AI COACH - PREMIUM -->
     <section class="panel" id="askPanel">
         <span class="ai-tag">🤖 AI · NUTRITION COACH</span>
-        <h2 class="panel-title">Ask Fuel AI Coach</h2>
+        <h2 class="panel-title">Ask Bodyfuel AI Coach</h2>
         <p style="color:var(--muted);font-size:13px;margin-bottom:4px;">Get personalized nutrition advice</p>
         <textarea id="aiQuestion" placeholder="e.g. Is dal & rice good for muscle gain? What to eat for weight loss?"></textarea>
         <button id="aiAskBtn" onclick="askAI()">Ask AI Coach</button>
@@ -912,7 +935,7 @@ async function startSubscription() {
       key: order.keyId,
       amount: order.amount,
       currency: order.currency,
-      name: "Fuel Premium",
+      name: "Bodyfuel Premium",
       description: "1 Month Premium Access",
       order_id: order.orderId,
       handler: async function (response) {
