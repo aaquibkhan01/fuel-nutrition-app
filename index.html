@@ -8,9 +8,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -212,6 +212,7 @@ canvas{margin-top:6px;max-height:260px;}
                 <input type="password" id="loginPassword" class="auth-input" placeholder="Password">
                 <button class="auth-btn" onclick="handleLogin()">Sign In</button>
             </div>
+            <div class="auth-toggle" style="margin-top:10px;"><a onclick="handleForgotPassword()">Forgot password?</a></div>
             <div class="auth-toggle">Don't have an account? <a onclick="toggleAuthMode()">Sign Up</a></div>
         </div>
 
@@ -265,6 +266,11 @@ canvas{margin-top:6px;max-height:260px;}
         </div>
     </div>
 </header>
+
+<div id="verifyBanner" style="display:none;background:var(--panel-2);border-bottom:1px solid var(--line);padding:10px 20px;text-align:center;font-size:13px;color:var(--muted);">
+    📧 Please verify your email address.
+    <a onclick="resendVerificationEmail()" style="color:var(--fuel);cursor:pointer;text-decoration:underline;">Resend email</a>
+</div>
 
 <main class="container">
 
@@ -803,9 +809,42 @@ async function handleSignup() {
       email: email,
       createdAt: new Date()
     });
+    await cred.user.sendEmailVerification();
+    alert("Account created! We've sent a verification email to " + email + " — please check your inbox.");
   } catch (err) {
     alert("Error: " + err.message);
   }
+}
+
+async function handleForgotPassword() {
+  const email = document.getElementById("loginEmail").value;
+  if (!email) {
+    alert("Enter your email in the Email field above first, then tap 'Forgot password?' again.");
+    return;
+  }
+  try {
+    await auth.sendPasswordResetEmail(email);
+    alert("Password reset email sent to " + email + ". Check your inbox (and spam folder).");
+  } catch (err) {
+    alert("Error: " + err.message);
+  }
+}
+
+async function resendVerificationEmail() {
+  try {
+    if (currentUser) {
+      await currentUser.sendEmailVerification();
+      alert("Verification email resent to " + currentUser.email);
+    }
+  } catch (err) {
+    alert("Error: " + err.message);
+  }
+}
+
+function updateVerifyBanner() {
+  const banner = document.getElementById("verifyBanner");
+  if (!banner) return;
+  banner.style.display = (currentUser && !currentUser.emailVerified) ? "block" : "none";
 }
 
 async function handleLogin() {
@@ -974,6 +1013,7 @@ function showAuthScreen() {
 function showAppScreen() {
   document.getElementById("authScreen").classList.remove("active");
   document.getElementById("appScreen").classList.add("active");
+  updateVerifyBanner();
 }
 
 function showPaywall() {
@@ -1306,11 +1346,18 @@ async function askAI() {
   box.classList.add("visible", "loading");
 
   try {
+    const idToken = await currentUser.getIdToken();
     const response = await fetch("/.netlify/functions/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mode: "chat", message: question })
+      body: JSON.stringify({ mode: "chat", message: question, idToken })
     });
+
+    if (response.status === 429) {
+      box.textContent = "You're sending requests a bit too fast — please wait a moment and try again.";
+      box.classList.remove("loading");
+      return;
+    }
 
     const data = await response.json();
     box.textContent = data.reply || "No response";
@@ -1338,14 +1385,37 @@ async function suggestMeals() {
   box.classList.add("visible", "loading");
 
   try {
+    const todaysMeals = data.days[todayKey()].meals;
+    const totals = todaysMeals.reduce((acc, m) => {
+      acc.calories += m.calories; acc.protein += m.protein; acc.carbs += m.carbs; acc.fat += m.fat;
+      return acc;
+    }, { calories: 0, protein: 0, carbs: 0, fat: 0 });
+
+    const idToken = await currentUser.getIdToken();
     const response = await fetch("/.netlify/functions/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mode: "suggest", foods: foods.map(f => f.name) })
+      body: JSON.stringify({
+        mode: "suggest",
+        idToken,
+        context: {
+          remainingCalories: Math.max(0, (data.goal || 2000) - totals.calories),
+          proteinSoFar: +totals.protein.toFixed(1),
+          carbsSoFar: +totals.carbs.toFixed(1),
+          fatSoFar: +totals.fat.toFixed(1),
+          foodNames: foods.map(f => f.name).slice(0, 60).join(", ")
+        }
+      })
     });
 
-    const data = await response.json();
-    box.textContent = data.reply || "No suggestions available";
+    if (response.status === 429) {
+      box.textContent = "You're sending requests a bit too fast — please wait a moment and try again.";
+      box.classList.remove("loading");
+      return;
+    }
+
+    const data2 = await response.json();
+    box.textContent = data2.reply || "No suggestions available";
     box.classList.remove("loading");
   } catch (err) {
     box.textContent = "Suggestions unavailable. Configure Groq API.";
