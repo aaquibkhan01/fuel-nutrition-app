@@ -119,6 +119,7 @@ button:disabled{opacity:.5;cursor:not-allowed;}
 .tube-label{display:block;font-family:var(--font-mono);font-size:11px;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px;}
 .tube-value{font-family:var(--font-mono);font-weight:600;font-size:26px;color:var(--accent);}
 .tube-value small{font-size:14px;font-weight:400;margin-left:2px;color:var(--muted);}
+.tube-goal-text{font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-top:4px;}
 
 /* ---------- Split panels (water / weight) ---------- */
 .split{display:grid;grid-template-columns:1fr 1fr;gap:22px;}
@@ -297,6 +298,41 @@ canvas{margin-top:6px;max-height:260px;}
 
 <main class="container">
 
+    <!-- GOAL CALCULATOR -->
+    <section class="panel" id="goalCalcPanel">
+        <h2 class="panel-title">🎯 SET YOUR GOAL</h2>
+        <p style="color:var(--muted);font-size:13px;margin-bottom:10px;">Tell us about yourself and we'll calculate your daily calorie & macro targets</p>
+
+        <label class="field-label" style="margin-top:4px;">WHAT'S YOUR GOAL?</label>
+        <div class="chip-row" id="goalTypeChips">
+            <button type="button" class="chip active" data-goal="lose">Lose Weight</button>
+            <button type="button" class="chip" data-goal="maintain">Maintain</button>
+            <button type="button" class="chip" data-goal="gain">Gain Weight</button>
+        </div>
+
+        <input type="number" id="profileWeight" placeholder="Current weight (kg)">
+        <input type="number" id="profileHeight" placeholder="Height (cm)">
+        <input type="number" id="profileAge" placeholder="Age">
+
+        <label class="field-label" style="margin-top:6px;">GENDER</label>
+        <select id="profileGender">
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+        </select>
+
+        <label class="field-label" style="margin-top:6px;">ACTIVITY LEVEL</label>
+        <select id="profileActivity">
+            <option value="1.2">Sedentary (little/no exercise)</option>
+            <option value="1.375">Light (exercise 1-3 days/week)</option>
+            <option value="1.55" selected>Moderate (exercise 3-5 days/week)</option>
+            <option value="1.725">Active (exercise 6-7 days/week)</option>
+            <option value="1.9">Very Active (hard exercise + physical job)</option>
+        </select>
+
+        <button onclick="calculateGoals()">Calculate My Targets</button>
+        <div class="ai-response" id="goalResultBox"></div>
+    </section>
+
     <!-- CALORIE GAUGE -->
     <section class="panel gauge-section">
         <div class="gauge-wrap">
@@ -325,14 +361,17 @@ canvas{margin-top:6px;max-height:260px;}
         <div class="tube" style="--accent:var(--volt)">
             <span class="tube-label">PROTEIN</span>
             <span class="tube-value" id="proteinTotal">0<small>g</small></span>
+            <div class="tube-goal-text" id="proteinGoalText"></div>
         </div>
         <div class="tube" style="--accent:var(--teal)">
             <span class="tube-label">CARBS</span>
             <span class="tube-value" id="carbsTotal">0<small>g</small></span>
+            <div class="tube-goal-text" id="carbsGoalText"></div>
         </div>
         <div class="tube" style="--accent:var(--ember)">
             <span class="tube-label">FAT</span>
             <span class="tube-value" id="fatTotal">0<small>g</small></span>
+            <div class="tube-goal-text" id="fatGoalText"></div>
         </div>
     </section>
 
@@ -726,21 +765,24 @@ const foods = [
 let currentUser = null;
 let isPremium = false;
 let selectedMeal = "Breakfast";
-let data = { goal: 2000, days: {} };
+let selectedGoalType = "lose";
+let data = { goal: 2000, macroGoals: { protein: 150, carbs: 200, fat: 65 }, days: {} };
 
 // ============ PERSISTENCE (Firestore, syncs across devices) ============
-// In-memory cache of {goal, days:{date:{meals,water,weight}}} for fast UI updates.
+// In-memory cache of {goal, macroGoals, days:{date:{meals,water,weight}}} for fast UI updates.
 // Every mutation writes through to Firestore so it's available on any device.
 
 async function loadData() {
-  const loaded = { goal: 2000, days: {} };
+  const loaded = { goal: 2000, macroGoals: { protein: 150, carbs: 200, fat: 65 }, days: {} };
 
   try {
     const userDoc = await db.collection("users").doc(currentUser.uid).get();
-    if (userDoc.exists && userDoc.data().goal) {
-      loaded.goal = userDoc.data().goal;
+    if (userDoc.exists) {
+      const userData = userDoc.data();
+      if (userData.goal) loaded.goal = userData.goal;
+      if (userData.macroGoals) loaded.macroGoals = userData.macroGoals;
     }
-  } catch (e) { /* keep default goal */ }
+  } catch (e) { /* keep defaults */ }
 
   // Pull the last 7 days of logs (enough for today's view + weekly charts)
   const dateKeys = [];
@@ -779,7 +821,7 @@ async function saveTodaysLog() {
 
 async function saveGoalToCloud() {
   try {
-    await db.collection("users").doc(currentUser.uid).set({ goal: data.goal }, { merge: true });
+    await db.collection("users").doc(currentUser.uid).set({ goal: data.goal, macroGoals: data.macroGoals }, { merge: true });
   } catch (e) {
     console.error("Failed to save goal:", e);
   }
@@ -1092,13 +1134,77 @@ function initFoodSelect() {
 }
 
 function initMealChips() {
-  document.querySelectorAll(".chip").forEach(chip => {
+  document.querySelectorAll("#mealChips .chip").forEach(chip => {
     chip.addEventListener("click", () => {
-      document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+      document.querySelectorAll("#mealChips .chip").forEach(c => c.classList.remove("active"));
       chip.classList.add("active");
       selectedMeal = chip.dataset.meal;
     });
   });
+
+  document.querySelectorAll("#goalTypeChips .chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      document.querySelectorAll("#goalTypeChips .chip").forEach(c => c.classList.remove("active"));
+      chip.classList.add("active");
+      selectedGoalType = chip.dataset.goal;
+    });
+  });
+}
+
+function calculateGoals() {
+  const weight = parseFloat(document.getElementById("profileWeight").value);
+  const height = parseFloat(document.getElementById("profileHeight").value);
+  const age = parseFloat(document.getElementById("profileAge").value);
+  const gender = document.getElementById("profileGender").value;
+  const activityMultiplier = parseFloat(document.getElementById("profileActivity").value);
+  const resultBox = document.getElementById("goalResultBox");
+
+  if (!weight || !height || !age || weight <= 0 || height <= 0 || age <= 0) {
+    alert("Please enter your weight, height, and age.");
+    return;
+  }
+
+  // Mifflin-St Jeor BMR formula
+  let bmr;
+  if (gender === "male") {
+    bmr = 10 * weight + 6.25 * height - 5 * age + 5;
+  } else {
+    bmr = 10 * weight + 6.25 * height - 5 * age - 161;
+  }
+
+  const tdee = bmr * activityMultiplier;
+
+  let targetCalories;
+  let proteinPerKg;
+  if (selectedGoalType === "lose") {
+    targetCalories = Math.max(1200, tdee - 500);
+    proteinPerKg = 2.0;
+  } else if (selectedGoalType === "gain") {
+    targetCalories = tdee + 400;
+    proteinPerKg = 1.8;
+  } else {
+    targetCalories = tdee;
+    proteinPerKg = 1.6;
+  }
+
+  const proteinGrams = Math.round(weight * proteinPerKg);
+  const fatGrams = Math.round((targetCalories * 0.25) / 9);
+  const proteinCals = proteinGrams * 4;
+  const fatCals = fatGrams * 9;
+  const carbGrams = Math.max(0, Math.round((targetCalories - proteinCals - fatCals) / 4));
+
+  targetCalories = Math.round(targetCalories);
+
+  data.goal = targetCalories;
+  data.macroGoals = { protein: proteinGrams, carbs: carbGrams, fat: fatGrams };
+
+  resultBox.classList.add("visible");
+  resultBox.innerHTML =
+    `<strong>Your daily targets:</strong>\n` +
+    `${targetCalories} kcal  •  Protein ${proteinGrams}g  •  Carbs ${carbGrams}g  •  Fat ${fatGrams}g`;
+
+  render();
+  saveGoalToCloud();
 }
 
 async function addFood() {
@@ -1259,6 +1365,11 @@ function render() {
   document.getElementById("proteinTotal").innerHTML = `${totals.protein.toFixed(1)}<small>g</small>`;
   document.getElementById("carbsTotal").innerHTML = `${totals.carbs.toFixed(1)}<small>g</small>`;
   document.getElementById("fatTotal").innerHTML = `${totals.fat.toFixed(1)}<small>g</small>`;
+
+  const mg = data.macroGoals || {};
+  document.getElementById("proteinGoalText").textContent = mg.protein ? `of ${mg.protein}g` : "";
+  document.getElementById("carbsGoalText").textContent = mg.carbs ? `of ${mg.carbs}g` : "";
+  document.getElementById("fatGoalText").textContent = mg.fat ? `of ${mg.fat}g` : "";
 
   document.getElementById("goalInput").placeholder = String(data.goal || 2000);
 
